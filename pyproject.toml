@@ -1,0 +1,30 @@
+[build-system]
+requires = ["hatchling>=1.21.0"]
+build-backend = "hatchling.build"
+
+[project]
+name = "carron"
+version = "0.1.0"
+description = "Carron: a forging-oriented test generation CLI"
+readme = "README.md"
+requires-python = ">=3.13"
+license = { text = "AGPL-3.0-only" }
+authors = [
+  { name = "Carron Authors" }
+]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
+  "License :: OSI Approved :: GNU Affero General Public License v3",
+  "Operating System :: OS Independent",
+]
+
+dependencies = []
+
+[project.scripts]
+carron = "carron.main:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/carron"]

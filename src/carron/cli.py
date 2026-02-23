@@ -1,15 +1,15 @@
 import argparse
 import ast
 import json
-import sys
 from pathlib import Path
 from typing import Any
 
-from .core.types import PlannerInput, GenerationContext
+from .core.types import GenerationContext, PlannerInput
 from .core.workflow import write_artifacts
-from .planner.heuristic import HeuristicPlanner
-from .forges.prop.forge import PropForge
 from .forges.diff.forge import DiffForge
+from .forges.prop.forge import PropForge
+from .interfaces.forge import Forge
+from .planner.heuristic import HeuristicPlanner
 from .runner.pytest_runner import run_pytest
 
 
@@ -75,7 +75,7 @@ def handle_diff(args: argparse.Namespace) -> None:
     _execute_forge(forge, args.target, args.output, args.mode)
 
 
-def _select_forge(name: str):
+def _select_forge(name: str) -> Forge:
     if name == "prop":
         return PropForge()
     if name == "diff":

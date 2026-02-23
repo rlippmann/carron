@@ -1,4 +1,3 @@
-import sys
 from .cli import build_parser, dispatch
 
 

@@ -5,5 +5,4 @@ from ..core.types import GenerationContext, GenerationResult
 
 class Forge(ABC):
     @abstractmethod
-    def generate(self, ctx: GenerationContext) -> GenerationResult:
-        ...
+    def generate(self, ctx: GenerationContext) -> GenerationResult: ...

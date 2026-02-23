@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from typing import List
 
 
 @dataclass
@@ -15,8 +14,8 @@ class GeneratedArtifact:
 
 @dataclass
 class GenerationResult:
-    artifacts: List[GeneratedArtifact]
-    diagnostics: List[str]
+    artifacts: list[GeneratedArtifact]
+    diagnostics: list[str]
 
 
 class GenerationContext:

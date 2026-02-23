@@ -1,10 +1,10 @@
-from carron.core.naming import test_filename_for_target
+from carron.core.naming import generated_test_filename
 from carron.core.types import PlannerInput
 from carron.planner.heuristic import HeuristicPlanner
 
 
 def test_naming() -> None:
-    name = test_filename_for_target("math:sqrt")
+    name = generated_test_filename("math:sqrt")
     assert name.startswith("test_")
     assert name.endswith(".py")
 

@@ -44,6 +44,12 @@ Default behavior:
 
 - `carron test <target>` defaults to `--mode emit` (never runs tests implicitly).
 
+module:... → import + inspect (best-effort; may execute import-time code)
+
+file.py:... → read that file only + AST (v0.1)
+
+No directory traversal / no symbol search across repo
+
 ---
 
 ## Package Layout (v0.1)
@@ -241,6 +247,7 @@ Planner constraints:
 - No repository scanning.
 - Only uses explicit target + adapter summary.
 - Output must be strict JSON with a small validated schema.
+- The initial heuristic planner may construct this structure directly; the LLM-backed planner returns JSON that parses into the same structure.
 - Planner is advisory; Carron must validate the recommendation against the set of implemented forges.
 
 (Planner schema and prompt live in `docs/planner.md`.)
@@ -256,6 +263,7 @@ Guidelines:
 - Prefer small, standard libraries.
 - Hypothesis is not required to run Carron; it is required to *execute generated `prop` tests*.
 - Pytest is not required to *emit* tests; it is required for `--mode run`.
+- Carron v0.1 is synchronous and will remain that way until it appears asynchronous is necessary
 
 Recommended packaging approach:
 

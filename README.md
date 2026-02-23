@@ -107,8 +107,8 @@ carron prop src/cache.py:LRUCache.get
 carron diff old.py:parse new.py:parse
 ```
 
-Carron does not scan the repository.  
-The user must specify the target.
+* module:... targets must be importable in the current Python environment (e.g. installed in the active venv or available via PYTHONPATH).
+* file.py:... targets are resolved by reading the specified file. Carron does not scan the repository.”
 
 ---
 

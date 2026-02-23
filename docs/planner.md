@@ -70,7 +70,7 @@ Field rules:
 - `recommended_forge`: one of: `prop`, `diff`
 - `confidence`: number in `[0.0, 1.0]`
 - `rationale`: array of 1–5 short strings
-- `needs`: optional array of dependency identifiers (e.g. `hypothesis`, `pytest`)
+- `needs`: optional array of dependency identifiers (e.g. `hypothesis`, `pytest`) which may be omitted by heuristic planners
 
 If uncertain, choose the safest option and set `confidence` low with rationale.
 

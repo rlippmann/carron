@@ -21,6 +21,7 @@ htmlcov/
 # Editor
 .vscode/
 .idea/
+.qodo/
 .DS_Store
 
 # Generated tests

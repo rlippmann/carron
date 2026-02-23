@@ -14,6 +14,7 @@ from carron.runner.pytest_runner import run_pytest
 
 
 def build_parser() -> argparse.ArgumentParser:
+    """Construct and return the Carron command-line argument parser."""
     parser = argparse.ArgumentParser(prog="carron")
     sub = parser.add_subparsers(dest="command", required=True)
 
@@ -40,6 +41,7 @@ def build_parser() -> argparse.ArgumentParser:
 
 
 def dispatch(args: argparse.Namespace) -> None:
+    """Dispatch parsed CLI arguments to the appropriate handler."""
     if args.command == "suggest":
         handle_suggest(args)
     elif args.command == "test":
@@ -53,12 +55,18 @@ def dispatch(args: argparse.Namespace) -> None:
 
 
 def handle_suggest(args: argparse.Namespace) -> None:
+    """Print a planner decision for the given target without execution."""
     planner = HeuristicPlanner()
     plan = planner.plan(PlannerInput(target=args.target))
     print(json.dumps(plan, indent=2))
 
 
 def handle_test(args: argparse.Namespace) -> None:
+    """Plan and generate tests for the given target.
+
+    Selects a forge via the planner and executes it according to the
+    requested mode.
+    """
     planner = HeuristicPlanner()
     plan = planner.plan(PlannerInput(target=args.target))
     forge = _select_forge(plan["forge"])
@@ -66,11 +74,13 @@ def handle_test(args: argparse.Namespace) -> None:
 
 
 def handle_prop(args: argparse.Namespace) -> None:
+    """Generate property-style tests directly using the prop forge."""
     forge = PropForge()
     _execute_forge(forge, args.target, args.output, args.mode)
 
 
 def handle_diff(args: argparse.Namespace) -> None:
+    """Generate diff-style tests directly using the diff forge."""
     forge = DiffForge()
     _execute_forge(forge, args.target, args.output, args.mode)
 

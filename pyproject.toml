@@ -42,8 +42,16 @@ line-length = 100
 target-version = "py313"
 
 [tool.ruff.lint]
-select = ["E", "F", "I", "UP", "B"]
+select = ["E", "F", "I", "UP", "B", "D101", "D102", "D103","TID"]
 ignore = []
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["D"]
+"src/carron/runner/**" = ["D"]  # optional
+"src/carron/adapters/**" = ["D"]  # optional, since it’s placeholder
+
+[tool.ruff.lint.flake8-tidy-imports]
+ban-relative-imports = "all"
 
 [tool.ruff.format]
 quote-style = "double"

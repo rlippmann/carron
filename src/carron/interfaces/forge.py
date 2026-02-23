@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from ..core.types import GenerationContext, GenerationResult
+from carron.core.types import GenerationContext, GenerationResult
 
 
 class Forge(ABC):

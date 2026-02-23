@@ -1,4 +1,4 @@
-from ..core.types import PlannerInput
+from carron.core.types import PlannerInput
 
 
 class HeuristicPlanner:

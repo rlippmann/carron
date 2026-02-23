@@ -1,4 +1,4 @@
-from .cli import build_parser, dispatch
+from carron.cli import build_parser, dispatch
 
 
 def main() -> None:

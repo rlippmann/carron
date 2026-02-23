@@ -1,6 +1,6 @@
-from ...core.naming import generated_test_filename
-from ...core.types import GeneratedArtifact, GenerationContext, GenerationResult
-from ...interfaces.forge import Forge
+from carron.core.naming import generated_test_filename
+from carron.core.types import GeneratedArtifact, GenerationContext, GenerationResult
+from carron.interfaces.forge import Forge
 
 
 class DiffForge(Forge):

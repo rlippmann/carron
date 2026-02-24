@@ -4,10 +4,12 @@ import json
 from pathlib import Path
 from typing import Any
 
+from carron.adapters.python.adapter import PythonRuntimeAdapter
 from carron.core.types import GenerationContext, PlannerInput
 from carron.core.workflow import write_artifacts
 from carron.forges.diff.forge import DiffForge
 from carron.forges.prop.forge import PropForge
+from carron.interfaces.adapter import AdapterError, TargetRef
 from carron.interfaces.forge import Forge
 from carron.planner.heuristic import HeuristicPlanner
 from carron.runner.pytest_runner import run_pytest
@@ -94,7 +96,22 @@ def _select_forge(name: str) -> Forge:
 
 
 def _execute_forge(forge: Any, target: str, output: str, mode: str) -> None:
-    ctx = GenerationContext(target=target)
+    """Generate tests via a forge after validating the target."""
+    adapter = PythonRuntimeAdapter()
+    ref = TargetRef(raw=target)
+
+    try:
+        resolved = adapter.validate_target(ref)
+        info = adapter.get_target_summary(ref)
+    except AdapterError as exc:
+        raise SystemExit(str(exc)) from exc
+
+    ctx = GenerationContext(
+        target=target,
+        target_info=info,
+        resolved_target=resolved,
+    )
+
     result = forge.generate(ctx)
     out_dir = Path(output)
     paths = write_artifacts(result.artifacts, out_dir)

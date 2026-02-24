@@ -30,8 +30,10 @@ class GenerationContext:
     In v0.1, this context does not provide LLM access.
     """
 
-    def __init__(self, target: str):
+    def __init__(self, target: str, *, target_info: object | None, resolved_target: object | None):
         self.target = target
+        self.target_info = target_info
+        self.resolved_target = resolved_target
 
     def generate_text(self, prompt: str) -> str:
         """Generate text from a prompt.

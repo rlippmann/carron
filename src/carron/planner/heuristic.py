@@ -1,4 +1,4 @@
-from carron.core.types import PlannerInput
+from carron.core.types import FORGE_DIFF, FORGE_PROP, PLANNER_KEY_FORGE, PlannerInput
 
 
 class HeuristicPlanner:
@@ -23,5 +23,5 @@ class HeuristicPlanner:
         """
         target = inp.target
         if ":" in target:
-            return {"forge": "prop", "reason": "function-level target"}
-        return {"forge": "diff", "reason": "module-level target"}
+            return {PLANNER_KEY_FORGE: FORGE_PROP, "reason": "function-level target"}
+        return {PLANNER_KEY_FORGE: FORGE_DIFF, "reason": "module-level target"}

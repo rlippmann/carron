@@ -1,5 +1,5 @@
 from carron.core.naming import generated_test_filename
-from carron.core.types import PlannerInput
+from carron.core.types import FORGE_DIFF, FORGE_PROP, PLANNER_KEY_FORGE, PlannerInput
 from carron.planner.heuristic import HeuristicPlanner
 
 
@@ -12,10 +12,10 @@ def test_naming() -> None:
 def test_planner_function_target() -> None:
     planner = HeuristicPlanner()
     plan = planner.plan(PlannerInput(target="math:sqrt"))
-    assert plan["forge"] == "prop"
+    assert plan[PLANNER_KEY_FORGE] == FORGE_PROP
 
 
 def test_planner_module_target() -> None:
     planner = HeuristicPlanner()
     plan = planner.plan(PlannerInput(target="math"))
-    assert plan["forge"] == "diff"
+    assert plan[PLANNER_KEY_FORGE] == FORGE_DIFF

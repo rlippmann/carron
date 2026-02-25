@@ -1,5 +1,9 @@
 from dataclasses import dataclass
 
+PLANNER_KEY_FORGE = "recommended_forge"
+FORGE_PROP = "prop"
+FORGE_DIFF = "diff"
+
 
 @dataclass
 class PlannerInput:

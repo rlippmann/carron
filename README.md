@@ -27,7 +27,7 @@ Carron is named after the historic Carron Ironworks, reflecting the idea of prod
 
 Generate and optionally run tests for a target:
 
-```
+```bash
 carron test <target>
 ```
 
@@ -40,15 +40,15 @@ Carron will:
 
 Modes:
 
-```
+```bash
 --mode emit Generate tests only (default)
---mode check Validate generated tests
+--mode check Validate generated tests via pytest --collect-only
 --mode run Run tests via pytest
 ```
 
 Example:
 
-```
+```bash
 carron test mypkg.math:clamp --mode run
 ```
 
@@ -58,11 +58,10 @@ carron test mypkg.math:clamp --mode run
 
 You can bypass automatic strategy selection and choose a specific testing style:
 
-```
+```bash
 carron prop <target>
 carron diff <targetA> <targetB>
 ```
-
 
 This is intended for users who want precise control over test style.
 
@@ -72,17 +71,15 @@ The `test` command uses an internal planner to select the most appropriate forge
 
 You can see the recommendation without generating tests:
 
-```
+```bash
 carron suggest <target>
 ```
 
-
 Or apply it automatically:
 
-```
+```bash
 carron suggest <target> --apply --mode run
 ```
-
 
 The planner does not scan your repository. It evaluates only the specified target and selects among implemented testing styles.
 
@@ -92,7 +89,7 @@ The planner does not scan your repository. It evaluates only the specified targe
 
 Supported forms:
 
-```
+```bash
 module:func
 module:Class.method
 file.py:func
@@ -101,14 +98,14 @@ file.py:Class.method
 
 Examples:
 
-```
+```bash
 carron prop math_utils:clamp
 carron prop src/cache.py:LRUCache.get
 carron diff old.py:parse new.py:parse
 ```
 
-* module:... targets must be importable in the current Python environment (e.g. installed in the active venv or available via PYTHONPATH).
-* file.py:... targets are resolved by reading the specified file. Carron does not scan the repository.”
+- module:... targets must be importable in the current Python environment (e.g. installed in the active venv or available via PYTHONPATH).
+- file.py:... targets are resolved by reading the specified file. Carron does not scan the repository.
 
 ---
 
@@ -120,11 +117,13 @@ Each forge represents a different correctness strategy — not just a different 
 ### Initial (v0.1)
 
 #### `prop` — Property Tests
+
 Generates property-based tests using **Hypothesis**.
 
 Instead of checking specific examples, the test asserts invariants about behavior and lets Hypothesis search for counterexamples.
 
 Best for:
+
 - pure functions
 - transformations
 - parsing
@@ -138,11 +137,13 @@ Example idea:
 ---
 
 #### `diff` — Differential Tests
+
 Compares two implementations and verifies they behave identically.
 
 No formal specification required — correctness is defined by agreement.
 
 Best for:
+
 - refactors
 - rewrites
 - performance replacements
@@ -156,15 +157,18 @@ Example idea:
 ### Planned (future)
 
 #### `snapshot`
+
 Captures structured output and detects regressions across changes.
 
 #### `meta` (Metamorphic)
+
 Verifies relationships between inputs and outputs rather than fixed results.
 
 Example:
 > `sort(sort(x)) == sort(x)`
 
 #### `audit`
+
 Evaluates test strength by intentionally mutating behavior and checking failures.
 
 ---
@@ -200,12 +204,8 @@ If a generated test requires a dependency:
 - `emit` succeeds regardless
 - `check/run` will report missing dependencies
 
-Example:
-
-```
 Generated property test requires: hypothesis
 Install with: pip install hypothesis
-```
 
 ---
 
@@ -221,7 +221,6 @@ pluggable test generators (forges), language adapters, and an optional test runn
 
 ---
 
- 
 ## Configuration
 
 Carron reads configuration from CLI flags, environment variables, and `pyproject.toml`.

@@ -1,11 +1,15 @@
 import argparse
-import ast
 import json
 from pathlib import Path
-from typing import Any
 
 from carron.adapters.python.adapter import PythonRuntimeAdapter
-from carron.core.types import GenerationContext, PlannerInput
+from carron.core.types import (
+    FORGE_DIFF,
+    FORGE_PROP,
+    PLANNER_KEY_FORGE,
+    GenerationContext,
+    PlannerInput,
+)
 from carron.core.workflow import write_artifacts
 from carron.forges.diff.forge import DiffForge
 from carron.forges.prop.forge import PropForge
@@ -14,53 +18,70 @@ from carron.interfaces.forge import Forge
 from carron.planner.heuristic import HeuristicPlanner
 from carron.runner.pytest_runner import run_pytest
 
+_COMMAND_SUGGEST = "suggest"
+_COMMAND_TEST = "test"
+
+_MODE_CHOICES = ("emit", "check", "run")
+_MODE_EMIT, _MODE_CHECK, _MODE_RUN = _MODE_CHOICES
+_DEFAULT_MODE = _MODE_EMIT
+
+_DEFAULT_OUTPUT_DIR = "tests/generated"
+
 
 def build_parser() -> argparse.ArgumentParser:
     """Construct and return the Carron command-line argument parser."""
     parser = argparse.ArgumentParser(prog="carron")
     sub = parser.add_subparsers(dest="command", required=True)
 
-    suggest = sub.add_parser("suggest")
+    suggest = sub.add_parser(_COMMAND_SUGGEST)
     suggest.add_argument("target")
-    suggest.add_argument("--mode", choices=["check", "run"], default="check")
+    suggest.add_argument("--apply", action="store_true")
+    suggest.add_argument("--mode", choices=_MODE_CHOICES, default=_DEFAULT_MODE)
+    suggest.add_argument("--output", default=_DEFAULT_OUTPUT_DIR)
 
-    test = sub.add_parser("test")
-    test.add_argument("target")
-    test.add_argument("--mode", choices=["check", "run"], default="check")
-    test.add_argument("--output", default="tests/generated")
+    def add_forge_command(name: str) -> None:
+        cmd = sub.add_parser(name)
+        cmd.add_argument("target")
+        cmd.add_argument("--mode", choices=_MODE_CHOICES, default=_DEFAULT_MODE)
+        cmd.add_argument("--output", default=_DEFAULT_OUTPUT_DIR)
 
-    prop = sub.add_parser("prop")
-    prop.add_argument("target")
-    prop.add_argument("--mode", choices=["check", "run"], default="check")
-    prop.add_argument("--output", default="tests/generated")
-
-    diff = sub.add_parser("diff")
-    diff.add_argument("target")
-    diff.add_argument("--mode", choices=["check", "run"], default="check")
-    diff.add_argument("--output", default="tests/generated")
+    for name in (_COMMAND_TEST, FORGE_PROP, FORGE_DIFF):
+        add_forge_command(name)
 
     return parser
 
 
 def dispatch(args: argparse.Namespace) -> None:
     """Dispatch parsed CLI arguments to the appropriate handler."""
-    if args.command == "suggest":
+    if args.command == _COMMAND_SUGGEST:
         handle_suggest(args)
-    elif args.command == "test":
+    elif args.command == _COMMAND_TEST:
         handle_test(args)
-    elif args.command == "prop":
+    elif args.command == FORGE_PROP:
         handle_prop(args)
-    elif args.command == "diff":
+    elif args.command == FORGE_DIFF:
         handle_diff(args)
     else:
         raise SystemExit(1)
 
 
 def handle_suggest(args: argparse.Namespace) -> None:
-    """Print a planner decision for the given target without execution."""
+    """Print a planner decision for the given target or apply it."""
     planner = HeuristicPlanner()
     plan = planner.plan(PlannerInput(target=args.target))
-    print(json.dumps(plan, indent=2))
+
+    if not args.apply:
+        print(json.dumps(plan, indent=2))
+        return
+
+    try:
+        forge_name = plan[PLANNER_KEY_FORGE]
+    except KeyError as exc:
+        print("Planner returned invalid decision structure")
+        raise SystemExit(1) from exc
+
+    forge = _select_forge(forge_name)
+    _execute_forge(forge, args.target, args.output, args.mode)
 
 
 def handle_test(args: argparse.Namespace) -> None:
@@ -71,7 +92,7 @@ def handle_test(args: argparse.Namespace) -> None:
     """
     planner = HeuristicPlanner()
     plan = planner.plan(PlannerInput(target=args.target))
-    forge = _select_forge(plan["forge"])
+    forge = _select_forge(plan[PLANNER_KEY_FORGE])
     _execute_forge(forge, args.target, args.output, args.mode)
 
 
@@ -88,14 +109,14 @@ def handle_diff(args: argparse.Namespace) -> None:
 
 
 def _select_forge(name: str) -> Forge:
-    if name == "prop":
+    if name == FORGE_PROP:
         return PropForge()
-    if name == "diff":
+    if name == FORGE_DIFF:
         return DiffForge()
     raise ValueError(f"Unknown forge: {name}")
 
 
-def _execute_forge(forge: Any, target: str, output: str, mode: str) -> None:
+def _execute_forge(forge: Forge, target: str, output: str, mode: str) -> None:
     """Generate tests via a forge after validating the target."""
     adapter = PythonRuntimeAdapter()
     ref = TargetRef(raw=target)
@@ -104,7 +125,8 @@ def _execute_forge(forge: Any, target: str, output: str, mode: str) -> None:
         resolved = adapter.validate_target(ref)
         info = adapter.get_target_summary(ref)
     except AdapterError as exc:
-        raise SystemExit(str(exc)) from exc
+        print(exc)
+        raise SystemExit(1) from exc
 
     ctx = GenerationContext(
         target=target,
@@ -116,13 +138,12 @@ def _execute_forge(forge: Any, target: str, output: str, mode: str) -> None:
     out_dir = Path(output)
     paths = write_artifacts(result.artifacts, out_dir)
 
-    for p in paths:
-        if mode == "check":
-            _check_file(p)
-        elif mode == "run":
-            run_pytest(p)
+    if mode == _MODE_EMIT:
+        return
+    collect_only = mode == _MODE_CHECK
+    if mode in {_MODE_CHECK, _MODE_RUN}:
+        for p in paths:
+            run_pytest(p, collect_only=collect_only)
+        return
 
-
-def _check_file(path: Path) -> None:
-    source = path.read_text()
-    ast.parse(source)
+    raise SystemExit(1)
